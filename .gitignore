@@ -1,3 +1,6 @@
+.vscode
+uv.lock
+
 # ignore all files in .env
 .env
 env/
