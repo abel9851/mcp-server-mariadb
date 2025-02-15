@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "mariadb>=1.1.12",
     "mcp[cli]>=1.2.1",
     "mysql-connector-python>=9.2.0",
     "python-dotenv>=1.0.1",
