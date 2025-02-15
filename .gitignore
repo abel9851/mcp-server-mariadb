@@ -5,3 +5,6 @@ uv.lock
 .env
 env/
 .venv
+
+# ignore pycache
+**/__pycache__/**
