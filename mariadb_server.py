@@ -43,3 +43,12 @@ def get_connection(config: DBconfig):
         return connection
     except mariadb.Error as e:
         print(f"Error connecting to MariaDB Platform: {e}")
+
+
+def is_read_only_query(query: str) -> bool:
+    """check if a query is read-only by examining its first word"""
+    first_word = query.strip().split()[0].upper()
+
+    read_only_commands = ["SELECT", "SHOW", "DESCRIBE", "DESC", "EXPLAIN"]
+
+    return first_word in read_only_commands
