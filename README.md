@@ -1,7 +1,11 @@
-# dependency
-## install mariadb
-### mac
-when install mariadb,
+# MCP MariaDB Server
+
+## dependency
+
+### install mariadb
+
+- mac
+  - when install mariadb,
 maybe raise os error below.
 you can resolve by installing mariadb-connector-c.
 
@@ -20,6 +24,26 @@ OSError: mariadb_config not found.
 ```
 
 1. execute `brew install mariadb-connector-c`
-2. execute `echo 'export PATH="/opt/homebrew/opt/mariadb-connector-c/bin:$PATH"' >> ~/.bashrc` 
+2. execute `echo 'export PATH="/opt/homebrew/opt/mariadb-connector-c/bin:$PATH"' >> ~/.bashrc`
 3. set environment variable `export MARIADB_CONFIG=$(brew --prefix mariadb-connector-c)/bin/mariadb_config`
 4. execute `uv add mariadb` again.
+
+## setting claude desktop
+
+```json
+
+{
+    "mcpServers": {
+        "mcp_server_mariadb": {
+            "command": "/PATH/uv",
+            "args": [
+                "--directory",
+                "SOURCECODE_PATH/mcp-server-mariadb",
+                "run",
+                "mariadb_server.py"
+            ]
+        }
+    }
+}
+
+```
