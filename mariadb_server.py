@@ -1,4 +1,5 @@
 import os
+from contextlib import closing
 from dataclasses import dataclass
 
 import mariadb
@@ -10,6 +11,9 @@ load_dotenv()
 mcp = FastMCP(
     "MariaDB Explorer", dependencies=["mysql-connector-python", "python-dotenv"]
 )
+
+READ_ONLY_KEYWORDS = ("SELECT", "SHOW", "DESCRIBE", "DESC", "EXPLAIN")
+READ_ONLY_KEYWORD_NAMES = ", ".join(READ_ONLY_KEYWORDS)
 
 
 # TODO: dataclass, decorator 친숙해지기
@@ -45,13 +49,27 @@ def get_connection():
         print(f"Error connecting to MariaDB Platform: {e}")
 
 
+# def execute_query(query: str) -> str:
+#     """Execute a query and return the result"""
+#     conn = None
+#     try:
+#         conn = get_connection()
+#         cursor = conn.cursor()
+#         cursor.execute(query)
+#         results = cursor.fetchall()  # TODO: what fetchall?
+#         return results
+#     except Exception as e:
+#         return f"Error executing query {str(e)}"
+#     finally:
+#         if conn is not None:
+#             conn.close()
+
+
 def is_read_only_query(query: str) -> bool:
     """check if a query is read-only by examining its first word"""
     first_word = query.strip().split()[0].upper()
 
-    read_only_commands = ["SELECT", "SHOW", "DESCRIBE", "DESC", "EXPLAIN"]
-
-    return first_word in read_only_commands
+    return first_word in READ_ONLY_KEYWORDS
 
 
 # TODO: what is resource?
@@ -69,17 +87,49 @@ def is_read_only_query(query: str) -> bool:
 def list_tables() -> str:
     """Get the schema for a specific table"""
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SHOW TABLES")
-        tables = cursor.fetchall()  # TODO: what fetchall?
-        return "\n".join(table[0] for table in tables)
+        with closing(get_connection()) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SHOW TABLES")
+            tables = cursor.fetchall()  # TODO: what fetchall?
+            return "\n".join(table[0] for table in tables)
     except Exception as e:
-        return f"Error retreiving tables: {str(e)}"
-    finally:
-        # TODO: locals()?
-        if "conn" in locals():
-            conn.close()
+        return f"Error retrieving tables: {str(e)}"
+
+
+@mcp.tool()
+def query_database(query: str) -> str:
+    """
+    Execute a read-only SQL query on the database
+
+    Args:
+        query: SQL query to execute (must be {READ_ONLY_KEYWORD_NAMES})
+    """
+
+    if not is_read_only_query(query):
+        return "Error: Only read-only queries (SELECT, SHOW, DESCRIBE, DESC, EXPLAIN) are allowed"
+
+    try:
+        with closing(get_connection()) as conn:
+            cursor = conn.cursor()
+            cursor.execute(query)
+            results = cursor.fetchall()
+
+            # Get column names
+            columns = [desc[0] for desc in cursor.description]
+
+            # Format results as a table
+            output = []
+            output.append(" | ".join(columns))
+            output.append(
+                "-" * (sum(len(col) for col in columns) + 3 * (len(columns) - 1))
+            )
+
+            for row in results:
+                output.append(" | ".join(str(val) for val in row))
+
+            return "\n".join(output)
+    except Exception as e:
+        return f"Error executing query {str(e)}"
 
 
 if __name__ == "__main__":
