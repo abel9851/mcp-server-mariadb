@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import os
 from contextlib import closing
 from dataclasses import dataclass, field
@@ -120,9 +121,9 @@ def query_database(query: str) -> str:
         return f"Error executing query {str(e)}"
 
 
-def main():
+async def main():
     mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
