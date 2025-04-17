@@ -11,7 +11,7 @@ Expose schema list in database
 ### Tools
 
 - query_database
-  - Execute read-only operations against MariDB
+  - Execute read-only operations against MaraiDB
 
 ## dependency
 
@@ -120,3 +120,7 @@ Paths to Claude Desktop config file:
 ## License
 
 This mcp server is licensed under the MIT license.  please see the LICENSE file in the repository.
+
+## Testing
+
+Run using `> pytest` in your working directory

@@ -2,10 +2,13 @@ import argparse
 import os
 from contextlib import closing
 from dataclasses import dataclass, field
-
 import mariadb
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
+
+import sqlparse
+from sqlparse.tokens import DML
+
 
 load_dotenv()
 
@@ -64,11 +67,50 @@ def get_connection():
         print(f"Error connecting to MariaDB Platform: {e}")
 
 
-def is_read_only_query(query: str) -> bool:
-    """check if a query is read-only by examining its first word"""
-    first_word = query.strip().split()[0].upper()
+def is_read_only_query(query: str) -> str:
+    # only allow readonly keywords
+    READ_ONLY_KEYWORDS = ("SELECT", "SHOW", "DESCRIBE", "DESC", "EXPLAIN")
+    
+    cleaned = sqlparse.format(query, strip_comments=True, strip_whitespace=True, strip_newlines=True)
+    statements = sqlparse.parse(cleaned)
 
-    return first_word in READ_ONLY_KEYWORDS
+    
+
+    # evaluate each statement, to handle multi-statement query
+    for statement in statements:
+        first_token = next((token for token in statement.tokens if token.ttype is not token.is_whitespace), None)
+        
+        # query is empty, invalid
+        if first_token is None:
+            return False
+        
+        # keyword is not a valid DML
+        if (first_token.value.upper() not in READ_ONLY_KEYWORDS):
+            return False
+        
+        tokens = cleaned.upper().split()
+        blacklisted_keywords = (
+            "INSERT", 
+            "UPDATE", 
+            "DELETE", 
+            "REPLACE", 
+            "CREATE", 
+            "ALTER", 
+            "DROP",
+            "INTO",
+            "TRUNCATE",
+            "LOAD_FILE",
+            "DUMPFILE",
+            "OUTFILE"
+        )
+        
+        # if any tokens are in blacklisted keywords, return false
+        if any(token in tokens for token in blacklisted_keywords):
+            return False
+    
+    return True
+        
+
 
 
 @mcp.resource("schema://tables")
