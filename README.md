@@ -1,29 +1,26 @@
 # mcp-server-mariadb
 
-An MCP server implementation for retrieving data from mariadb
+An MCP server implementation for retrieving data from MariaDB
 
 ## Features
 
 ### Resources
 
-Expose schema list in database
+Expose the schema list in database
 
 ### Tools
 
 - query_database
-  - Execute read-only operations against MariDB
+  - Execute read-only operations against MariaDB
 
-## dependency
+## Dependencies
 
-### install mariadb
+### Install MariaDB
 
-- mac
-  - when install mariadb,
-maybe raise os error below.
-you can resolve by installing mariadb-connector-c.
+- Macintosh
+  - When installing MariaDB, you may oserve the following OS error. You can resolve this by installing mariadb-connector-c.
 
 ```bash
-
 OSError: mariadb_config not found.
 
       This error typically indicates that MariaDB Connector/C, a dependency which
@@ -32,20 +29,18 @@ OSError: mariadb_config not found.
       If MariaDB Connector/C is installed, either set the environment variable
       MARIADB_CONFIG or edit the configuration file 'site.cfg' to set the
        'mariadb_config' option to the file location of the mariadb_config utility.
-
-
 ```
 
-1. execute `brew install mariadb-connector-c`
-2. execute `echo 'export PATH="/opt/homebrew/opt/mariadb-connector-c/bin:$PATH"' >> ~/.bashrc`
-3. set environment variable `export MARIADB_CONFIG=$(brew --prefix mariadb-connector-c)/bin/mariadb_config`
-4. execute `uv add mariadb` again.
+1. Execute `brew install mariadb-connector-c`
+2. Execute `echo 'export PATH="/opt/homebrew/opt/mariadb-connector-c/bin:$PATH"' >> ~/.bashrc`
+3. Set an environment variable `export MARIADB_CONFIG=$(brew --prefix mariadb-connector-c)/bin/mariadb_config`
+4. Execute `uv add mariadb` again.
 
 ## Usage with Claude Desktop
 
 ### Configuration File
 
-Paths to Claude Desktop config file:
+Paths to the Claude Desktop configuration file:
 
 - **MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
@@ -119,4 +114,4 @@ Paths to Claude Desktop config file:
 
 ## License
 
-This mcp server is licensed under the MIT license.  please see the LICENSE file in the repository.
+This MCP server is licensed under the MIT license. Please see the LICENSE file in the repository for more information.
